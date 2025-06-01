@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocConvert Pro - Online Document Converter</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Convertly</h1>
+            <p>Convert between images, PDFs, and Word documents with advanced options</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="converter-tabs">
+            <button class="tab-btn active" data-tab="image-to-pdf">Image to PDF</button>
+            <button class="tab-btn" data-tab="pdf-to-word">PDF to Word</button>
+            <button class="tab-btn" data-tab="word-to-pdf">Word to PDF</button>
+        </div>
+
+        <div id="image-to-pdf" class="tab-content active">
+            <div class="upload-area" id="image-upload-area">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag & drop images here or click to browse</p>
+                <input type="file" id="image-input" accept="image/*" multiple>
+            </div>
+            
+            <div class="preview-container" id="image-preview">
+                <!-- Images will be previewed here -->
+            </div>
+
+            <div class="options-panel">
+                <h3>PDF Options</h3>
+                
+                <div class="option-group">
+                    <label>Page Size:</label>
+                    <select id="page-size">
+                        <option value="a4">A4</option>
+                        <option value="letter">Letter</option>
+                        <option value="legal">Legal</option>
+                        <option value="a5">A5</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>Orientation:</label>
+                    <select id="page-orientation">
+                        <option value="portrait">Portrait</option>
+                        <option value="landscape">Landscape</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>Margin (mm):</label>
+                    <input type="number" id="page-margin" min="0" max="50" value="10">
+                </div>
+
+                <div class="option-group">
+                    <label>Page Spread:</label>
+                    <select id="page-spread">
+                        <option value="none">None</option>
+                        <option value="booklet">Booklet</option>
+                        <option value="magazine">Magazine</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>Border Style:</label>
+                    <select id="border-style">
+                        <option value="none">None</option>
+                        <option value="solid">Solid</option>
+                        <option value="dotted">Dotted</option>
+                        <option value="dashed">Dashed</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>Border Color:</label>
+                    <input type="color" id="border-color" value="#000000">
+                </div>
+
+                <div class="option-group">
+                    <label>Compression:</label>
+                    <select id="compression-level">
+                        <option value="low">Low (High Quality)</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High (Smaller File)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="convert-to-pdf" class="convert-btn">Convert to PDF</button>
+        </div>
+
+        <div id="pdf-to-word" class="tab-content">
+            <div class="upload-area" id="pdf-upload-area">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag & drop PDF file here or click to browse</p>
+                <input type="file" id="pdf-input" accept=".pdf">
+            </div>
+
+            <div class="options-panel">
+                <h3>Word Options</h3>
+                
+                <div class="option-group">
+                    <label>Output Format:</label>
+                    <select id="word-format">
+                        <option value="docx">DOCX (Word 2007+)</option>
+                        <option value="doc">DOC (Word 97-2003)</option>
+                        <option value="odt">ODT (OpenDocument)</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>Preserve Layout:</label>
+                    <input type="checkbox" id="preserve-layout" checked>
+                </div>
+
+                <div class="option-group">
+                    <label>Include Images:</label>
+                    <input type="checkbox" id="include-images" checked>
+                </div>
+            </div>
+
+            <button id="convert-to-word" class="convert-btn">Convert to Word</button>
+        </div>
+
+        <div id="word-to-pdf" class="tab-content">
+            <div class="upload-area" id="word-upload-area">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag & drop Word file here or click to browse</p>
+                <input type="file" id="word-input" accept=".doc,.docx,.odt">
+            </div>
+
+            <div class="options-panel">
+                <h3>PDF Options</h3>
+                
+                <div class="option-group">
+                    <label>Page Size:</label>
+                    <select id="word-page-size">
+                        <option value="a4">A4</option>
+                        <option value="letter">Letter</option>
+                        <option value="legal">Legal</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>Orientation:</label>
+                    <select id="word-page-orientation">
+                        <option value="portrait">Portrait</option>
+                        <option value="landscape">Landscape</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>PDF Quality:</label>
+                    <select id="pdf-quality">
+                        <option value="screen">Screen (72dpi)</option>
+                        <option value="ebook" selected>Ebook (150dpi)</option>
+                        <option value="printer">Printer (300dpi)</option>
+                        <option value="prepress">Prepress (High Quality)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="convert-word-to-pdf" class="convert-btn">Convert to PDF</button>
+        </div>
+
+        <div class="download-section hidden" id="download-section">
+            <h3>Your file is ready!</h3>
+            <p id="output-filename">output.pdf</p>
+            <button id="download-btn" class="download-btn">
+                <i class="fas fa-download"></i> Download
+            </button>
+            <button id="new-conversion-btn">Start New Conversion</button>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Convertly - Free Online Document Converter</p>
+            <p>All conversions happen in your browser. Your files are never uploaded to any server.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.0/mammoth.browser.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
