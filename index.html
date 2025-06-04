@@ -4,19 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Convertly - Advanced Document Converter</title>
-    <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.0/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- Header Section -->
     <header>
         <div class="container">
             <h1>Convertly</h1>
@@ -27,7 +25,9 @@
         </div>
     </header>
 
+    <!-- Main Content Area -->
     <main class="container">
+        <!-- Tab Navigation -->
         <div class="converter-tabs">
             <button class="tab-btn active" data-tab="image-to-pdf">
                 <i class="fas fa-file-image"></i> Image to PDF
@@ -55,6 +55,7 @@
             </button>
         </div>
 
+        <!-- Image to PDF Converter -->
         <div id="image-to-pdf" class="tab-content active">
             <div class="upload-area" id="image-upload-area">
                 <i class="fas fa-cloud-upload-alt"></i>
@@ -62,8 +63,7 @@
                 <p class="text-muted">Supports JPG, PNG, BMP, WEBP</p>
                 <input type="file" id="image-input" accept="image/*" multiple>
             </div>
-            <div class="preview-container" id="image-preview">
-                </div>
+            <div class="preview-container" id="image-preview"></div>
             <div class="options-panel">
                 <h3><i class="fas fa-cog"></i> PDF Options</h3>
                 <div class="option-group">
@@ -124,11 +124,16 @@
             </button>
         </div>
 
+        <!-- PDF to Word Converter -->
         <div id="pdf-to-word" class="tab-content">
             <div class="upload-area" id="pdf-upload-area">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p>Drag & drop PDF file here or click to browse</p>
                 <input type="file" id="pdf-input" accept=".pdf">
+            </div>
+            <div id="pdf-file-info" class="file-info hidden">
+                <i class="fas fa-file-pdf"></i>
+                <span id="pdf-file-name"></span>
             </div>
             <div class="options-panel">
                 <h3><i class="fas fa-cog"></i> Word Options</h3>
@@ -155,11 +160,16 @@
              <p style="text-align:center; margin-top:10px;"><em>Note: Client-side PDF to Word is highly complex. This is a simulated conversion.</em></p>
         </div>
 
+        <!-- Word to PDF Converter -->
         <div id="word-to-pdf" class="tab-content">
             <div class="upload-area" id="word-upload-area">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p>Drag & drop Word file here or click to browse</p>
                 <input type="file" id="word-input" accept=".doc,.docx,.odt">
+            </div>
+            <div id="word-file-info" class="file-info hidden">
+                <i class="fas fa-file-word"></i>
+                <span id="word-file-name"></span>
             </div>
             <div class="options-panel">
                 <h3><i class="fas fa-cog"></i> PDF Options</h3>
@@ -194,12 +204,17 @@
             <p style="text-align:center; margin-top:10px;"><em>Note: Converts Word text content to PDF. Complex layouts may not be preserved.</em></p>
         </div>
 
+        <!-- Video to Audio Converter -->
         <div id="video-to-audio" class="tab-content">
             <div class="upload-area" id="video-upload-area">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p>Drag & drop video file here or click to browse</p>
                 <p class="text-muted">Supports MP4, MOV, AVI, MKV</p>
                 <input type="file" id="video-input" accept="video/*">
+            </div>
+            <div id="video-file-info" class="file-info hidden">
+                <i class="fas fa-file-video"></i>
+                <span id="video-file-name"></span>
             </div>
             <div class="options-panel">
                 <h3><i class="fas fa-cog"></i> Audio Options</h3>
@@ -242,12 +257,17 @@
             <p style="text-align:center; margin-top:10px;"><em>Note: Client-side audio extraction is complex. This is a simulated conversion.</em></p>
         </div>
 
+        <!-- Excel to PDF Converter -->
         <div id="excel-to-pdf" class="tab-content">
             <div class="upload-area" id="excel-upload-area">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p>Drag & drop Excel file here or click to browse</p>
                 <p class="text-muted">Supports XLSX, XLS, CSV</p>
                 <input type="file" id="excel-input" accept=".xlsx,.xls,.csv">
+            </div>
+            <div id="excel-file-info" class="file-info hidden">
+                <i class="fas fa-file-excel"></i>
+                <span id="excel-file-name"></span>
             </div>
             <div class="options-panel">
                 <h3><i class="fas fa-cog"></i> PDF Options</h3>
@@ -295,6 +315,7 @@
             <p style="text-align:center; margin-top:10px;"><em>Note: Converts Excel data to PDF. Complex formatting and charts may not be preserved.</em></p>
         </div>
         
+        <!-- PPT to PDF Converter -->
         <div id="ppt-to-pdf" class="tab-content">
             <div class="upload-area" id="ppt-upload-area">
                 <i class="fas fa-cloud-upload-alt"></i>
@@ -302,27 +323,37 @@
                 <p class="text-muted">Supports PPT, PPTX</p>
                 <input type="file" id="ppt-input" accept=".ppt,.pptx">
             </div>
+            <div id="ppt-file-info" class="file-info hidden">
+                <i class="fas fa-file-powerpoint"></i>
+                <span id="ppt-file-name"></span>
+            </div>
             <div class="options-panel">
                 <h3><i class="fas fa-cog"></i> PDF Options</h3>
-                </div>
+            </div>
             <button id="convert-ppt-to-pdf" class="convert-btn">
                 <i class="fas fa-file-pdf"></i> Convert PPT to PDF
             </button>
-            <p style="text-align:center; margin-top:10px;"><em>Note: Full PowerPoint conversion is highly complex client-side. Advanced formatting may not be preserved. This is a placeholder.</em></p>
+            <p style="text-align:center; margin-top:10px;"><em>Note: Full PowerPoint conversion is highly complex client-side. This is a placeholder.</em></p>
         </div>
 
+        <!-- PDF Editor -->
         <div id="edit-pdf" class="tab-content">
             <div class="upload-area" id="edit-pdf-upload-area">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <p>Drag & drop PDF file to edit</p>
                 <input type="file" id="edit-pdf-input" accept=".pdf">
             </div>
+            <div id="edit-pdf-file-info" class="file-info hidden">
+                <i class="fas fa-file-pdf"></i>
+                <span id="edit-pdf-file-name"></span>
+            </div>
             <button id="apply-pdf-edits" class="convert-btn">
                 <i class="fas fa-save"></i> Apply Edits & Save PDF
             </button>
-            <p style="text-align:center; margin-top:10px;"><em>Note: PDF editing capabilities are placeholders. Integration with a library like PDF-lib.js is required.</em></p>
+            <p style="text-align:center; margin-top:10px;"><em>Note: PDF editing capabilities are placeholders.</em></p>
         </div>
 
+        <!-- Scan to PDF Converter -->
         <div id="scan-to-pdf" class="tab-content">
             <div class="upload-area" id="scan-upload-area">
                 <i class="fas fa-cloud-upload-alt"></i>
@@ -330,8 +361,7 @@
                 <p class="text-muted">Supports JPG, PNG, BMP, WEBP</p>
                 <input type="file" id="scan-image-input" accept="image/*" multiple>
             </div>
-            <div class="preview-container" id="scan-image-preview">
-                </div>
+            <div class="preview-container" id="scan-image-preview"></div>
             <div class="options-panel">
                 <h3><i class="fas fa-cog"></i> PDF Options (for Scan)</h3>
                 <div class="option-group">
@@ -360,6 +390,7 @@
             </button>
         </div>
 
+        <!-- Download Section -->
         <div class="download-section hidden" id="download-section">
             <h3><i class="fas fa-check-circle"></i> Your file is ready!</h3>
             <p id="output-filename">output.pdf</p>
@@ -386,6 +417,7 @@
         </div>
     </main>
 
+    <!-- Footer -->
     <footer>
         <div class="container">
             <p>Convertly - Free Online Document Converter</p>
