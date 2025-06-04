@@ -1,4 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // File variables for different converters
+    let imageFiles = [];
+    let scannedImageFiles = [];
+    let excelFile = null;
+    let pptFile = null;
+    let pdfToEditFile = null;
+    let wordFileForPdf = null;
+    let pdfFileForWord = null;
+    let videoFileForAudio = null;
+    
     // --- UTILITY FUNCTIONS ---
     function preventDefaults(e) {
         e.preventDefault();
@@ -13,7 +23,29 @@ document.addEventListener('DOMContentLoaded', function() {
         if (areaElement) areaElement.classList.remove('highlight');
     }
 
-    function setupDragAndDrop(areaElement, fileInput, callbackOnFileDropOrChange) {
+    function setUploadAreaText(areaElement, text) {
+        const pElement = areaElement.querySelector('p:not(.text-muted)');
+        if (pElement) {
+            pElement.textContent = text;
+        }
+    }
+    
+    function showFileInfo(elementId, fileName) {
+        const fileInfoEl = document.getElementById(elementId);
+        if (fileInfoEl) {
+            fileInfoEl.querySelector('span').textContent = fileName;
+            fileInfoEl.classList.remove('hidden');
+        }
+    }
+    
+    function hideFileInfo(elementId) {
+        const fileInfoEl = document.getElementById(elementId);
+        if (fileInfoEl) {
+            fileInfoEl.classList.add('hidden');
+        }
+    }
+
+    function setupDragAndDrop(areaElement, fileInput, callbackOnFileDropOrChange, fileInfoId = null) {
         if (!areaElement || !fileInput) return;
 
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -32,9 +64,14 @@ document.addEventListener('DOMContentLoaded', function() {
         areaElement.addEventListener('drop', function(e) {
             const dt = e.dataTransfer;
             const files = dt.files;
-            fileInput.files = files; // Assign to file input for consistency
+            fileInput.files = files;
             if (callbackOnFileDropOrChange) {
                 callbackOnFileDropOrChange(Array.from(files));
+            }
+            
+            // For single file uploads, show file info
+            if (files.length > 0 && fileInfoId) {
+                showFileInfo(fileInfoId, files[0].name);
             }
         }, false);
 
@@ -42,6 +79,11 @@ document.addEventListener('DOMContentLoaded', function() {
         fileInput.addEventListener('change', function(e) {
             if (callbackOnFileDropOrChange) {
                 callbackOnFileDropOrChange(Array.from(e.target.files));
+            }
+            
+            // For single file uploads, show file info
+            if (e.target.files.length > 0 && fileInfoId) {
+                showFileInfo(fileInfoId, e.target.files[0].name);
             }
         });
     }
@@ -89,7 +131,6 @@ document.addEventListener('DOMContentLoaded', function() {
         currentFilenameToDownload = '';
     }
 
-
     if (downloadBtn) {
         downloadBtn.addEventListener('click', function() {
             if (currentBlobToDownload && currentFilenameToDownload) {
@@ -105,30 +146,40 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Set current year in footer
     const currentYearEl = document.getElementById('current-year');
     if (currentYearEl) {
         currentYearEl.textContent = new Date().getFullYear();
     }
 
-
     function resetAllInputsAndPreviews() {
+        // Reset file input elements
         const inputs = document.querySelectorAll('input[type="file"]');
         inputs.forEach(input => input.value = '');
-
+        
+        // Reset preview containers
         const previews = document.querySelectorAll('.preview-container');
         previews.forEach(preview => preview.innerHTML = '');
-
-        // Reset specific file arrays/variables
+        
+        // Reset file arrays/variables
         imageFiles = [];
-        scannedImageFiles = []; 
+        scannedImageFiles = [];
         excelFile = null;
         pptFile = null;
         pdfToEditFile = null;
         wordFileForPdf = null;
         pdfFileForWord = null;
         videoFileForAudio = null;
-
-        // Reset upload area prompt texts if needed (optional)
+        
+        // Hide all file info elements
+        hideFileInfo('pdf-file-info');
+        hideFileInfo('word-file-info');
+        hideFileInfo('video-file-info');
+        hideFileInfo('excel-file-info');
+        hideFileInfo('ppt-file-info');
+        hideFileInfo('edit-pdf-file-info');
+        
+        // Reset upload area prompt texts
         const uploadAreaPrompts = {
             'image-upload-area': 'Drag & drop images here or click to browse',
             'pdf-upload-area': 'Drag & drop PDF file here or click to browse',
@@ -143,10 +194,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (const areaId in uploadAreaPrompts) {
             const area = document.getElementById(areaId);
             if (area) {
-                const pElement = area.querySelector('p:not(.text-muted)');
-                if (pElement) {
-                    pElement.textContent = uploadAreaPrompts[areaId];
-                }
+                setUploadAreaText(area, uploadAreaPrompts[areaId]);
             }
         }
     }
@@ -164,7 +212,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const imageInput = document.getElementById('image-input');
     const imagePreview = document.getElementById('image-preview');
     const convertToPdfBtn = document.getElementById('convert-to-pdf');
-    let imageFiles = [];
 
     setupDragAndDrop(imageUploadArea, imageInput, (files) => {
         imageFiles = files;
@@ -224,9 +271,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const doc = new jsPDF({ orientation, unit: 'mm', format: pageSize });
 
             const {
-                compressionLevelId = null, // e.g., 'compression-level'
-                borderStyleId = null,     // e.g., 'border-style'
-                borderColorId = null      // e.g., 'border-color'
+                compressionLevelId = null,
+                borderStyleId = null,
+                borderColorId = null
             } = options;
 
             for (let i = 0; i < filesToConvert.length; i++) {
@@ -305,7 +352,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 compressionLevelId: 'compression-level', 
                 borderStyleId: 'border-style',
                 borderColorId: 'border-color'
-            } // Pass IDs of advanced option elements
+            }
         ));
     }
 
@@ -314,7 +361,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const scanImageInput = document.getElementById('scan-image-input');
     const scanImagePreview = document.getElementById('scan-image-preview');
     const convertScanToPdfBtn = document.getElementById('convert-scan-to-pdf');
-    let scannedImageFiles = []; 
 
     setupDragAndDrop(scanUploadArea, scanImageInput, (files) => {
         scannedImageFiles = files; 
@@ -333,7 +379,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 'scan-page-orientation', 
                 'scan-page-margin', 
                 convertScanToPdfBtn
-                // No advanced border/compression options passed for scan by default, can be added if UI exists
             );
         });
     }
@@ -342,12 +387,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const pdfUploadArea = document.getElementById('pdf-upload-area');
     const pdfInput = document.getElementById('pdf-input');
     const convertToWordBtn = document.getElementById('convert-to-word');
-    let pdfFileForWord = null;
 
     setupDragAndDrop(pdfUploadArea, pdfInput, (files) => {
-        if (files.length > 0) pdfFileForWord = files[0];
-        else pdfFileForWord = null;
-    });
+        if (files.length > 0) {
+            pdfFileForWord = files[0];
+            showFileInfo('pdf-file-info', pdfFileForWord.name);
+        } else {
+            pdfFileForWord = null;
+            hideFileInfo('pdf-file-info');
+        }
+    }, 'pdf-file-info');
 
     if (convertToWordBtn) {
         convertToWordBtn.addEventListener('click', function() {
@@ -373,12 +422,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const wordUploadArea = document.getElementById('word-upload-area');
     const wordInput = document.getElementById('word-input');
     const convertWordToPdfBtn = document.getElementById('convert-word-to-pdf');
-    let wordFileForPdf = null;
 
     setupDragAndDrop(wordUploadArea, wordInput, (files) => {
-        if (files.length > 0) wordFileForPdf = files[0];
-        else wordFileForPdf = null;
-    });
+        if (files.length > 0) {
+            wordFileForPdf = files[0];
+            showFileInfo('word-file-info', wordFileForPdf.name);
+        } else {
+            wordFileForPdf = null;
+            hideFileInfo('word-file-info');
+        }
+    }, 'word-file-info');
 
     if (convertWordToPdfBtn) {
         convertWordToPdfBtn.addEventListener('click', async function() {
@@ -436,12 +489,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const videoUploadArea = document.getElementById('video-upload-area');
     const videoInput = document.getElementById('video-input');
     const convertVideoToAudioBtn = document.getElementById('convert-video-to-audio');
-    let videoFileForAudio = null;
 
     setupDragAndDrop(videoUploadArea, videoInput, (files) => {
-        if (files.length > 0) videoFileForAudio = files[0];
-        else videoFileForAudio = null;
-    });
+        if (files.length > 0) {
+            videoFileForAudio = files[0];
+            showFileInfo('video-file-info', videoFileForAudio.name);
+        } else {
+            videoFileForAudio = null;
+            hideFileInfo('video-file-info');
+        }
+    }, 'video-file-info');
     
     const volumeSlider = document.getElementById('volume');
     const volumeValue = document.getElementById('volume-value');
@@ -475,12 +532,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const excelUploadArea = document.getElementById('excel-upload-area');
     const excelInput = document.getElementById('excel-input');
     const convertExcelToPdfBtn = document.getElementById('convert-excel-to-pdf');
-    let excelFile = null;
 
     setupDragAndDrop(excelUploadArea, excelInput, (files) => {
-        if (files.length > 0) excelFile = files[0];
-        else excelFile = null;
-    });
+        if (files.length > 0) {
+            excelFile = files[0];
+            showFileInfo('excel-file-info', excelFile.name);
+        } else {
+            excelFile = null;
+            hideFileInfo('excel-file-info');
+        }
+    }, 'excel-file-info');
 
     if (convertExcelToPdfBtn) {
         convertExcelToPdfBtn.addEventListener('click', async function() {
@@ -517,12 +578,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     firstSheetProcessed = false;
 
-                    doc.setFontSize(FONT_SIZE + 2); // Slightly larger for sheet title
+                    doc.setFontSize(FONT_SIZE + 2);
                     doc.text(sheetName, margin, margin);
                     doc.setFontSize(FONT_SIZE);
 
                     const ws = workbook.Sheets[sheetName];
-                    // {header:1} gives array of arrays. raw:false attempts to format dates/numbers as strings.
                     const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "", raw: false });
 
                     if (jsonData.length === 0) return; 
@@ -531,32 +591,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     const tableStartX = margin;
                     let tableMaxWidth = doc.internal.pageSize.getWidth() - 2 * margin;
                     
-                    // Estimate column widths (very basic, can be significantly improved)
                     let numCols = 0;
                     jsonData.forEach(r => numCols = Math.max(numCols, r.length));
                     const colWidths = Array(numCols).fill(tableMaxWidth / numCols);
                     
-                    // A more sophisticated column width calculation would involve measuring text
-                    // for (let c = 0; c < numCols; c++) {
-                    //     let maxColTextWidth = 0;
-                    //     jsonData.forEach(r => {
-                    //         const cellText = String(r[c] || "");
-                    //         maxColTextWidth = Math.max(maxColTextWidth, doc.getTextWidth(cellText));
-                    //     });
-                    //     colWidths[c] = Math.max(tableMaxWidth / numCols, maxColTextWidth + 2 * CELL_PADDING);
-                    // }
-                    // // Normalize if total exceeds max width - this part is tricky
-                    // let totalEstWidth = colWidths.reduce((sum, w) => sum + w, 0);
-                    // if (totalEstWidth > tableMaxWidth) {
-                    //     colWidths.forEach((w, i) => colWidths[i] = (w / totalEstWidth) * tableMaxWidth);
-                    // }
-
-
                     jsonData.forEach((row) => {
                         let currentX = tableStartX;
-                        let maxRowHeight = baseLineHeight; // Height for this logical row
+                        let maxRowHeight = baseLineHeight;
 
-                        // First pass to calculate max height for the row due to text wrapping
                         row.forEach((cellData, colIndex) => {
                             if (colIndex < numCols) {
                                 const cellText = String(cellData);
@@ -570,16 +612,15 @@ document.addEventListener('DOMContentLoaded', function() {
                             y = margin;
                         }
 
-                        // Second pass to draw cells
                         row.forEach((cellData, colIndex) => {
-                             if (colIndex < numCols) {
+                            if (colIndex < numCols) {
                                 const cellText = String(cellData);
                                 const textLines = doc.splitTextToSize(cellText, colWidths[colIndex] - (2 * CELL_PADDING));
 
                                 if (includeGridlines) {
                                     doc.rect(currentX, y, colWidths[colIndex], maxRowHeight);
                                 }
-                                let textY = y + baseLineHeight - ( MM_PER_POINT * FONT_SIZE * 0.2 ); // Adjust for better vertical centering
+                                let textY = y + baseLineHeight - ( MM_PER_POINT * FONT_SIZE * 0.2 );
                                 textLines.forEach(line => {
                                     doc.text(line, currentX + CELL_PADDING, textY);
                                     textY += baseLineHeight;
@@ -608,12 +649,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const pptUploadArea = document.getElementById('ppt-upload-area');
     const pptInput = document.getElementById('ppt-input');
     const convertPptToPdfBtn = document.getElementById('convert-ppt-to-pdf');
-    let pptFile = null;
 
     setupDragAndDrop(pptUploadArea, pptInput, (files) => {
-        if (files.length > 0) pptFile = files[0];
-        else pptFile = null;
-    });
+        if (files.length > 0) {
+            pptFile = files[0];
+            showFileInfo('ppt-file-info', pptFile.name);
+        } else {
+            pptFile = null;
+            hideFileInfo('ppt-file-info');
+        }
+    }, 'ppt-file-info');
 
     if (convertPptToPdfBtn) {
         convertPptToPdfBtn.addEventListener('click', function() {
@@ -631,7 +676,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.innerHTML = '<i class="fas fa-file-pdf"></i> Convert PPT to PDF';
                 this.disabled = false;
             }, 2000);
-            // alert("Note: Client-side PowerPoint to PDF conversion with full fidelity is highly complex and not fully implemented in this demo. This will produce a placeholder file.");
         });
     }
 
@@ -639,12 +683,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const editPdfUploadArea = document.getElementById('edit-pdf-upload-area');
     const editPdfInput = document.getElementById('edit-pdf-input');
     const applyPdfEditsBtn = document.getElementById('apply-pdf-edits');
-    let pdfToEditFile = null;
 
     setupDragAndDrop(editPdfUploadArea, editPdfInput, (files) => {
-        if (files.length > 0) pdfToEditFile = files[0];
-        else pdfToEditFile = null;
-    });
+        if (files.length > 0) {
+            pdfToEditFile = files[0];
+            showFileInfo('edit-pdf-file-info', pdfToEditFile.name);
+        } else {
+            pdfToEditFile = null;
+            hideFileInfo('edit-pdf-file-info');
+        }
+    }, 'edit-pdf-file-info');
 
     if (applyPdfEditsBtn) {
         applyPdfEditsBtn.addEventListener('click', async function() {
@@ -656,35 +704,11 @@ document.addEventListener('DOMContentLoaded', function() {
             this.disabled = true;
             const fileName = 'edited_' + pdfToEditFile.name;
             
-            // Placeholder: True client-side PDF editing uses libraries like PDF-lib.js
-            // This requires significant UI and logic for different editing operations.
             try {
-                // Example using PDF-lib (very basic: adding a text)
-                // const { PDFDocument, rgb, StandardFonts } = PDFLib; // Make sure PDFLib is globally available
-                // const existingPdfBytes = await pdfToEditFile.arrayBuffer();
-                // const pdfDoc = await PDFDocument.load(existingPdfBytes);
-                // const pages = pdfDoc.getPages();
-                // const firstPage = pages[0];
-                // if (firstPage) {
-                //     firstPage.drawText('Edited with Convertly!', {
-                //         x: 50,
-                //         y: firstPage.getHeight() - 50,
-                //         size: 30,
-                //         font: await pdfDoc.embedFont(StandardFonts.Helvetica),
-                //         color: rgb(0.95, 0.1, 0.1),
-                //     });
-                // }
-                // const pdfBytes = await pdfDoc.save();
-                // const pdfBlob = new Blob([pdfBytes], { type: 'application/pdf' });
-                // showDownloadSection(fileName, pdfBlob);
-
-                // For now, simulate
                 setTimeout(() => {
-                     const pdfBlob = new Blob([`Simulated edited PDF for ${pdfToEditFile.name}. Actual PDF editing requires a library like PDF-lib.js and UI for editing tools.`], { type: 'application/pdf' });
+                    const pdfBlob = new Blob([`Simulated edited PDF for ${pdfToEditFile.name}. Actual PDF editing requires a library like PDF-lib.js and UI for editing tools.`], { type: 'application/pdf' });
                     showDownloadSection(fileName, pdfBlob);
                 }, 2000);
-                 // alert("Note: PDF editing is a complex feature. This demo will produce a placeholder. For actual editing, PDF-lib.js integration is needed.");
-
             } catch (err) {
                 console.error("PDF Editing Error:", err);
                 alert("Could not process PDF for editing. Check if PDF-lib.js is correctly loaded and the PDF is not corrupted.");
@@ -694,5 +718,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
 });
