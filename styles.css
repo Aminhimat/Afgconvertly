@@ -38,7 +38,6 @@ main.container {
     flex-grow: 1;
 }
 
-
 header {
     background: linear-gradient(to right, var(--primary-color), #6a5af9);
     color: white;
@@ -99,6 +98,7 @@ header p {
     margin-bottom: 1.5rem;
     border-bottom: 1px solid #ddd;
     padding-bottom: 10px;
+    justify-content: center;
 }
 
 .tab-btn {
@@ -151,11 +151,10 @@ header p {
     overflow: hidden;
     box-shadow: var(--box-shadow);
 }
-.upload-area.highlight { /* For drag-over effect */
+.upload-area.highlight {
     border-color: var(--primary-color);
     background-color: #f0f3ff;
 }
-
 
 .upload-area:hover {
     border-color: var(--primary-color);
@@ -182,7 +181,6 @@ header p {
     color: #888;
     margin-top: -0.5rem;
 }
-
 
 .upload-area input[type="file"] {
     position: absolute;
@@ -222,7 +220,7 @@ header p {
 
 .image-preview-item img {
     width: 100%;
-    height: 150px; /* Adjusted height */
+    height: 150px;
     object-fit: contain;
     display: block;
     margin-bottom: 8px;
@@ -296,7 +294,6 @@ header p {
     color: var(--primary-color);
 }
 
-
 .option-group select, 
 .option-group input[type="number"],
 .option-group input[type="color"],
@@ -319,7 +316,7 @@ header p {
 }
 
 .option-group input[type="checkbox"] {
-    margin-left: 0; /* Adjusted from margin-right */
+    margin-left: 0;
     width: 18px;
     height: 18px;
     accent-color: var(--primary-color);
@@ -330,7 +327,6 @@ header p {
     accent-color: var(--primary-color);
 }
 
-
 .convert-btn {
     background: linear-gradient(to right, var(--primary-color), #6a5af9);
     color: white;
@@ -340,19 +336,18 @@ header p {
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: var(--transition);
-    display: block; /* Changed from flex to block */
+    display: block;
     width: 100%;
     font-weight: 600;
-    margin-bottom: 2rem; /* Added margin-bottom */
+    margin-bottom: 2rem;
     box-shadow: 0 4px 10px rgba(74, 107, 255, 0.4);
     position: relative;
     overflow: hidden;
-    text-align: center; /* Ensure text and icon are centered */
+    text-align: center;
 }
 .convert-btn i {
     margin-right: 8px;
 }
-
 
 .convert-btn::before {
     content: "";
@@ -384,7 +379,6 @@ header p {
 .convert-btn:disabled:hover::before {
     left: -100%;
 }
-
 
 .download-section {
     background-color: white;
@@ -422,7 +416,7 @@ header p {
     border-radius: var(--border-radius);
     cursor: pointer;
     transition: var(--transition);
-    margin: 1.5rem 0.5rem 0.5rem 0.5rem; /* Adjusted margin */
+    margin: 1.5rem 0.5rem 0.5rem 0.5rem;
     font-weight: 500;
     box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
     display: inline-flex;
@@ -440,18 +434,17 @@ header p {
 
 #new-conversion-btn {
     background: none;
-    border: 1px solid var(--secondary-color); /* Added border */
+    border: 1px solid var(--secondary-color);
     color: var(--secondary-color);
     cursor: pointer;
-    /* text-decoration: underline; */
     font-size: 0.9rem;
     transition: var(--transition);
-    padding: 0.8rem 1.5rem; /* Adjusted padding */
-    border-radius: var(--border-radius); /* Added border-radius */
-    display: inline-flex; /* For alignment with download button */
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--border-radius);
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-top: 0.5rem; /* Added margin */
+    margin-top: 0.5rem;
 }
 #new-conversion-btn i {
     margin-right: 5px;
@@ -459,7 +452,7 @@ header p {
 
 #new-conversion-btn:hover {
     color: var(--primary-color);
-    border-color: var(--primary-color); /* Hover border color */
+    border-color: var(--primary-color);
     background-color: rgba(74,107,255,0.05);
 }
 
@@ -468,7 +461,7 @@ footer {
     color: white;
     text-align: center;
     padding: 1.5rem 0;
-    margin-top: auto; /* Pushes footer to bottom if content is short */
+    margin-top: auto;
     border-top: 1px solid rgba(255,255,255,0.1);
 }
 
@@ -498,8 +491,8 @@ footer p:last-child {
     display: flex;
     justify-content: center;
     margin: 20px 0;
-    gap: 15px; /* Reduced gap */
-    flex-wrap: wrap; /* Allow wrapping on small screens */
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
 .status-step {
@@ -507,35 +500,20 @@ footer p:last-child {
     flex-direction: column;
     align-items: center;
     position: relative;
-    padding: 0 10px; /* Added padding */
+    padding: 0 10px;
 }
 
-.status-step:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    top: 20px;
-    /* right: -20px;  Adjust based on gap - more complex with flex-wrap */
-    /* width: 30px;  Adjust based on gap */
-    /* Using left instead for better control with flex-wrap */
-    left: calc(50% + 20px + 7.5px); /* Half icon + padding + half gap */
-    width: calc(100% - 40px - 15px + 15px); /* Approximation based on gap */
-    height: 2px;
-    background: #ddd;
-    transform: translateX(-50%);
-    z-index: -1; /* Behind icons */
-}
-@media (min-width: 500px) { /* Only show lines on wider screens where they make sense */
+@media (min-width: 500px) {
     .status-step:not(:last-child)::after {
         content: "";
         position: absolute;
-        top: 19px; /* Center with icon */
+        top: 19px;
         left: 100%;
-        width: 15px; /* Gap between items */
+        width: 15px;
         height: 2px;
         background-color: #ddd;
     }
 }
-
 
 .status-icon {
     width: 40px;
@@ -548,7 +526,7 @@ footer p:last-child {
     margin-bottom: 10px;
     font-size: 18px;
     color: #999;
-    border: 2px solid #f0f0f0; /* Base border */
+    border: 2px solid #f0f0f0;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
@@ -597,30 +575,33 @@ footer p:last-child {
     color: var(--primary-color);
 }
 
-.progress-bar { /* Not currently used in JS but styled */
-    height: 8px;
-    background: #e9ecef;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 20px 0;
+.file-info {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.progress { /* Not currently used in JS but styled */
-    height: 100%;
-    background: var(--primary-color);
-    width: 0%;
-    transition: width 0.5s ease;
+.file-info i {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.file-info span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.file-info.hidden {
+    display: none;
 }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
 }
 
 @media (max-width: 768px) {
@@ -630,8 +611,8 @@ footer p:last-child {
     
     .tab-btn {
         width: 100%;
-        text-align: left; /* Or center if preferred */
-        justify-content: flex-start; /* Aligns icon and text to left */
+        text-align: left;
+        justify-content: flex-start;
         padding: 1rem;
     }
     
@@ -642,7 +623,7 @@ footer p:last-child {
     
     .option-group label {
         margin-bottom: 0.5rem;
-        width: 100%; /* Label takes full width */
+        width: 100%;
     }
     
     .option-group select, 
@@ -650,22 +631,22 @@ footer p:last-child {
     .option-group input[type="color"],
     .option-group input[type="text"],
     .option-group input[type="range"] {
-        width: 100%; /* Inputs take full width */
-        min-width: unset; /* Override min-width */
+        width: 100%;
+        min-width: unset;
     }
 
     .conversion-status {
-        flex-direction: column; /* Stack status steps vertically */
-        align-items: center; /* Center them */
-        gap: 10px; /* Reduce gap for vertical stacking */
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
     }
 
     .status-step:not(:last-child)::after {
-        display: none; /* Hide connecting lines on small screens */
+        display: none;
     }
 
     .download-btn, #new-conversion-btn {
-        width: 100%; /* Make buttons full width */
+        width: 100%;
         margin-left: 0;
         margin-right: 0;
     }
