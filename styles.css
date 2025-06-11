@@ -116,6 +116,7 @@ header p {
     display: flex;
     align-items: center;
     gap: 8px;
+    outline: none; /* Base outline removal for buttons */
 }
 
 .tab-btn:hover {
@@ -249,6 +250,7 @@ header p {
     justify-content: center;
     transition: var(--transition);
     font-size: 1rem;
+    outline: none; /* Base outline removal */
 }
 
 .image-preview-item .remove-btn:hover {
@@ -294,7 +296,7 @@ header p {
     color: var(--primary-color);
 }
 
-.option-group select, 
+.option-group select,
 .option-group input[type="number"],
 .option-group input[type="color"],
 .option-group input[type="text"] {
@@ -305,14 +307,22 @@ header p {
     border-radius: var(--border-radius);
     font-family: inherit;
     transition: var(--transition);
+    outline: none; /* Remove default outline from the start */
 }
 
-.option-group select:focus, 
-.option-group input[type="number"]:focus,
-.option-group input[type="text"]:focus {
+/* Specific padding for color input to help with height consistency */
+.option-group input[type="color"] {
+    padding: 0.5rem; /* Adjust padding for better appearance */
+    height: calc(0.7rem * 2 + 2px + 18px); /* Approximate height of other inputs */
+}
+
+.option-group select:focus-visible,
+.option-group input[type="number"]:focus-visible,
+.option-group input[type="text"]:focus-visible,
+.option-group input[type="color"]:focus-visible {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
-    outline: none;
+    /* outline: none; is already set in the base style */
 }
 
 .option-group input[type="checkbox"] {
@@ -321,10 +331,24 @@ header p {
     height: 18px;
     accent-color: var(--primary-color);
     cursor: pointer;
+    outline: none; /* Remove default outline */
 }
+
+.option-group input[type="checkbox"]:focus-visible {
+    box-shadow: 0 0 0 2px var(--light-color), 0 0 0 4px var(--primary-color); /* More distinct focus */
+}
+
 .option-group input[type="range"] {
     flex:1;
     accent-color: var(--primary-color);
+    outline: none; /* Remove default outline for range track */
+}
+
+.option-group input[type="range"]:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px var(--light-color), 0 0 0 5px var(--primary-color);
+}
+.option-group input[type="range"]:focus-visible::-moz-range-thumb {
+  box-shadow: 0 0 0 3px var(--light-color), 0 0 0 5px var(--primary-color);
 }
 
 .convert-btn {
@@ -344,6 +368,7 @@ header p {
     position: relative;
     overflow: hidden;
     text-align: center;
+    outline: none; /* Base outline removal */
 }
 .convert-btn i {
     margin-right: 8px;
@@ -422,6 +447,7 @@ header p {
     display: inline-flex;
     align-items: center;
     gap: 10px;
+    outline: none; /* Base outline removal */
 }
 
 .download-btn:hover {
@@ -445,6 +471,7 @@ header p {
     align-items: center;
     gap: 8px;
     margin-top: 0.5rem;
+    outline: none; /* Base outline removal */
 }
 #new-conversion-btn i {
     margin-right: 5px;
@@ -455,6 +482,20 @@ header p {
     border-color: var(--primary-color);
     background-color: rgba(74,107,255,0.05);
 }
+
+/* General Button Focus Styles */
+button:focus-visible, /* Catches generic <button> elements if any are missed by class */
+.tab-btn:focus-visible,
+.convert-btn:focus-visible,
+.download-btn:focus-visible,
+#new-conversion-btn:focus-visible,
+.image-preview-item .remove-btn:focus-visible {
+    outline: 2px solid var(--primary-color) !important; /* Using important to ensure override if needed */
+    outline-offset: 2px !important;
+    /* Adding a subtle box-shadow as well can help, but ensure it doesn't conflict with existing shadows on hover */
+    box-shadow: 0 0 0 2px var(--light-color), 0 0 0 4px var(--primary-color) !important;
+}
+
 
 footer {
     background: var(--dark-color);
@@ -608,25 +649,25 @@ footer p:last-child {
     .converter-tabs {
         flex-direction: column;
     }
-    
+
     .tab-btn {
         width: 100%;
         text-align: left;
         justify-content: flex-start;
         padding: 1rem;
     }
-    
+
     .option-group {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .option-group label {
         margin-bottom: 0.5rem;
         width: 100%;
     }
-    
-    .option-group select, 
+
+    .option-group select,
     .option-group input[type="number"],
     .option-group input[type="color"],
     .option-group input[type="text"],

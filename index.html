@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf-autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.0/mammoth.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -94,8 +95,8 @@
                         <label><i class="fas fa-book"></i> Page Spread:</label>
                         <select id="page-spread">
                             <option value="none">None</option>
-                            <option value="booklet" disabled>Booklet (N/A)</option>
-                            <option value="magazine" disabled>Magazine (N/A)</option>
+                            <option value="booklet" disabled title="Booklet mode is not yet implemented.">Booklet (N/A)</option>
+                            <option value="magazine" disabled title="Magazine spread is not yet implemented.">Magazine (N/A)</option>
                         </select>
                     </div>
                     <div class="option-group">
@@ -297,17 +298,17 @@
                     <h4><i class="fas fa-sliders-h"></i> Advanced Options</h4>
                     <div class="option-group">
                         <label><i class="fas fa-columns"></i> Fit to Page:</label>
-                        <select id="fit-to-page" disabled>
+                        <select id="fit-to-page" disabled title="Fit to page functionality is not yet available.">
                             <option value="auto">Auto (N/A)</option>
                         </select>
                     </div>
                     <div class="option-group">
                         <label><i class="fas fa-heading"></i> Include Headers:</label>
-                        <input type="checkbox" id="include-headers" checked disabled> <small>(N/A)</small>
+                        <input type="checkbox" id="include-headers" checked disabled title="Header inclusion control is not yet available."> <small>(N/A)</small>
                     </div>
                     <div class="option-group">
                         <label><i class="fas fa-filter"></i> Filter Sheets:</label>
-                        <input type="text" id="sheet-filter" placeholder="Sheet names (N/A)" disabled>
+                        <input type="text" id="sheet-filter" placeholder="Sheet names (N/A)" disabled title="Sheet filtering is not yet available.">
                     </div>
                 </div>
             </div>

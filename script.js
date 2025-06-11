@@ -1,3 +1,15 @@
+/**
+ * @file Main script for Convertly application, handling UI interactions,
+ * file processing, and conversions.
+ * @author Your Name/Convertly Team
+ * @version 1.1.0
+ */
+
+/**
+ * Initializes the application after the DOM is fully loaded.
+ * Sets up event listeners for tabs, file inputs, and conversion buttons.
+ * @listens DOMContentLoaded
+ */
 document.addEventListener('DOMContentLoaded', function() {
     // File variables for different converters
     let imageFiles = [];
@@ -10,19 +22,40 @@ document.addEventListener('DOMContentLoaded', function() {
     let videoFileForAudio = null;
     
     // --- UTILITY FUNCTIONS ---
+
+    /**
+     * Prevents default event behavior and stops event propagation.
+     * @param {Event} e - The event object.
+     */
     function preventDefaults(e) {
         e.preventDefault();
         e.stopPropagation();
     }
 
+    /**
+     * Adds a 'highlight' class to a given HTML element.
+     * Typically used for drag-and-drop visual feedback.
+     * @param {HTMLElement} areaElement - The HTML element to highlight.
+     */
     function highlight(areaElement) {
         if (areaElement) areaElement.classList.add('highlight');
     }
 
+    /**
+     * Removes the 'highlight' class from a given HTML element.
+     * Typically used for drag-and-drop visual feedback.
+     * @param {HTMLElement} areaElement - The HTML element to unhighlight.
+     */
     function unhighlight(areaElement) {
         if (areaElement) areaElement.classList.remove('highlight');
     }
 
+    /**
+     * Sets the text content of the main paragraph within an upload area.
+     * Excludes the muted helper text paragraph.
+     * @param {HTMLElement} areaElement - The upload area HTML element.
+     * @param {string} text - The text to set.
+     */
     function setUploadAreaText(areaElement, text) {
         const pElement = areaElement.querySelector('p:not(.text-muted)');
         if (pElement) {
@@ -30,6 +63,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    /**
+     * Shows a file information display element and sets its text content.
+     * @param {string} elementId - The ID of the file information HTML element.
+     * @param {string} fileName - The name of the file to display.
+     */
     function showFileInfo(elementId, fileName) {
         const fileInfoEl = document.getElementById(elementId);
         if (fileInfoEl) {
@@ -38,6 +76,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
+    /**
+     * Hides a file information display element.
+     * @param {string} elementId - The ID of the file information HTML element.
+     */
     function hideFileInfo(elementId) {
         const fileInfoEl = document.getElementById(elementId);
         if (fileInfoEl) {
@@ -45,12 +87,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    /**
+     * Sets up drag and drop functionality for a given area.
+     * Also handles file selection via click on the associated file input.
+     * Updates the prompt text within the areaElement to show selected file info.
+     * @param {HTMLElement} areaElement - The HTML element that serves as the drop zone.
+     * @param {HTMLInputElement} fileInput - The file input element associated with the drop zone.
+     * @param {function(File[]): void} callbackOnFileDropOrChange - Callback function to execute when files are dropped or selected.
+     * @param {string|null} [fileInfoId=null] - Optional ID of an element to display separate single file information (e.g., for non-image previews).
+     */
     function setupDragAndDrop(areaElement, fileInput, callbackOnFileDropOrChange, fileInfoId = null) {
         if (!areaElement || !fileInput) return;
 
+        const promptElement = areaElement.querySelector('p:not(.text-muted)');
+        const originalPromptText = promptElement ? promptElement.textContent : '';
+
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             areaElement.addEventListener(eventName, preventDefaults, false);
-            document.body.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false); // Prevent browser default for unhandled drops
         });
 
         ['dragenter', 'dragover'].forEach(eventName => {
@@ -65,25 +119,49 @@ document.addEventListener('DOMContentLoaded', function() {
             const dt = e.dataTransfer;
             const files = dt.files;
             fileInput.files = files;
+            const fileArray = Array.from(files);
+
             if (callbackOnFileDropOrChange) {
-                callbackOnFileDropOrChange(Array.from(files));
+                callbackOnFileDropOrChange(fileArray);
             }
             
-            // For single file uploads, show file info
-            if (files.length > 0 && fileInfoId) {
-                showFileInfo(fileInfoId, files[0].name);
+            if (promptElement) {
+                if (fileArray.length === 1) {
+                    promptElement.textContent = `File selected: ${fileArray[0].name}`;
+                } else if (fileArray.length > 1) {
+                    promptElement.textContent = `${fileArray.length} files selected`;
+                } else if (originalPromptText) {
+                    promptElement.textContent = originalPromptText;
+                }
+            }
+
+            if (fileArray.length > 0 && fileInfoId) {
+                showFileInfo(fileInfoId, fileArray[0].name);
+            } else if (fileArray.length === 0 && fileInfoId) {
+                hideFileInfo(fileInfoId);
             }
         }, false);
 
-        // Also trigger callback on manual file selection
         fileInput.addEventListener('change', function(e) {
+            const filesArray = Array.from(e.target.files);
             if (callbackOnFileDropOrChange) {
-                callbackOnFileDropOrChange(Array.from(e.target.files));
+                callbackOnFileDropOrChange(filesArray);
+            }
+
+            if (promptElement) {
+                if (filesArray.length === 1) {
+                    promptElement.textContent = `File selected: ${filesArray[0].name}`;
+                } else if (filesArray.length > 1) {
+                    promptElement.textContent = `${filesArray.length} files selected`;
+                } else if (originalPromptText) {
+                    promptElement.textContent = originalPromptText;
+                }
             }
             
-            // For single file uploads, show file info
-            if (e.target.files.length > 0 && fileInfoId) {
-                showFileInfo(fileInfoId, e.target.files[0].name);
+            if (filesArray.length > 0 && fileInfoId) {
+                showFileInfo(fileInfoId, filesArray[0].name);
+            } else if (filesArray.length === 0 && fileInfoId) {
+                hideFileInfo(fileInfoId);
             }
         });
     }
@@ -92,6 +170,40 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
 
+    /**
+     * Retrieves PDF document options (page size, orientation, margin) from DOM elements.
+     * @param {string} sizeId - The ID of the page size select element.
+     * @param {string} orientationId - The ID of the page orientation select element.
+     * @param {string} marginId - The ID of the page margin input element.
+     * @param {object} [defaults={}] - Optional default values for orientation, size, and margin.
+     * @param {string} [defaults.orientation='portrait'] - Default page orientation if not found or invalid.
+     * @param {string} [defaults.size='a4'] - Default page size if not found or invalid.
+     * @param {number} [defaults.margin=10] - Default page margin in mm if not found or invalid.
+     * @returns {{orientation: string, size: string, margin: number}} An object containing the PDF options.
+     */
+    function getPdfOptions(sizeId, orientationId, marginId, defaults = {}) {
+        const defaultOrientation = defaults.orientation || 'portrait';
+        const defaultSize = defaults.size || 'a4';
+        const defaultMargin = defaults.margin !== undefined ? defaults.margin : 10;
+
+        const orientationValue = document.getElementById(orientationId)?.value;
+        const sizeValue = document.getElementById(sizeId)?.value;
+        const marginElement = document.getElementById(marginId);
+        const marginValue = marginElement ? parseInt(marginElement.value) : null;
+
+        return {
+            orientation: orientationValue || defaultOrientation,
+            size: sizeValue || defaultSize,
+            margin: marginValue !== null && !isNaN(marginValue) ? marginValue : defaultMargin
+        };
+    }
+
+    /**
+     * Handles tab switching functionality.
+     * When a tab button is clicked, it activates the corresponding tab content
+     * and deactivates others. Also resets inputs and hides the download section.
+     * @listens click on .tab-btn elements
+     */
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const tabId = btn.getAttribute('data-tab');
@@ -102,8 +214,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (activeTabContent) {
                 activeTabContent.classList.add('active');
             }
-            resetAllInputsAndPreviews();
-            hideDownloadSection();
+            resetAllInputsAndPreviews(); // Reset UI elements on tab change
+            hideDownloadSection(); // Hide download section on tab change
         });
     });
 
@@ -115,6 +227,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentBlobToDownload = null;
     let currentFilenameToDownload = '';
 
+    /**
+     * Shows the download section with the provided filename and blob.
+     * @param {string} filename - The name for the file to be downloaded.
+     * @param {Blob} blob - The Blob object representing the file content.
+     */
     function showDownloadSection(filename, blob) {
         currentBlobToDownload = blob;
         currentFilenameToDownload = filename;
@@ -125,6 +242,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    /**
+     * Hides the download section and clears current download data.
+     */
     function hideDownloadSection() {
         if (downloadSection) downloadSection.classList.add('hidden');
         currentBlobToDownload = null;
@@ -132,6 +252,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (downloadBtn) {
+        /**
+         * Handles the click event for the main download button.
+         * Uses FileSaver.js's saveAs to trigger the file download.
+         * @listens click on #download-btn
+         */
         downloadBtn.addEventListener('click', function() {
             if (currentBlobToDownload && currentFilenameToDownload) {
                 try {
@@ -146,22 +271,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Set current year in footer
     const currentYearEl = document.getElementById('current-year');
     if (currentYearEl) {
         currentYearEl.textContent = new Date().getFullYear();
     }
 
+    /**
+     * Resets all file input elements, preview containers, global file variables,
+     * file info displays, and upload area prompt texts to their initial states.
+     */
     function resetAllInputsAndPreviews() {
-        // Reset file input elements
         const inputs = document.querySelectorAll('input[type="file"]');
         inputs.forEach(input => input.value = '');
         
-        // Reset preview containers
         const previews = document.querySelectorAll('.preview-container');
         previews.forEach(preview => preview.innerHTML = '');
         
-        // Reset file arrays/variables
         imageFiles = [];
         scannedImageFiles = [];
         excelFile = null;
@@ -171,7 +296,6 @@ document.addEventListener('DOMContentLoaded', function() {
         pdfFileForWord = null;
         videoFileForAudio = null;
         
-        // Hide all file info elements
         hideFileInfo('pdf-file-info');
         hideFileInfo('word-file-info');
         hideFileInfo('video-file-info');
@@ -179,7 +303,6 @@ document.addEventListener('DOMContentLoaded', function() {
         hideFileInfo('ppt-file-info');
         hideFileInfo('edit-pdf-file-info');
         
-        // Reset upload area prompt texts
         const uploadAreaPrompts = {
             'image-upload-area': 'Drag & drop images here or click to browse',
             'pdf-upload-area': 'Drag & drop PDF file here or click to browse',
@@ -200,6 +323,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (newConversionBtn) {
+        /**
+         * Handles the click event for the "Start New Conversion" button.
+         * Hides the download section, resets all inputs and previews, and scrolls to the top.
+         * @listens click on #new-conversion-btn
+         */
         newConversionBtn.addEventListener('click', function() {
             hideDownloadSection();
             resetAllInputsAndPreviews();
@@ -214,36 +342,54 @@ document.addEventListener('DOMContentLoaded', function() {
     const convertToPdfBtn = document.getElementById('convert-to-pdf');
 
     setupDragAndDrop(imageUploadArea, imageInput, (files) => {
-        imageFiles = files;
+        imageFiles = files; // Store globally for this converter
         displayImagePreviews(imageFiles, imagePreview, 'imageFiles');
     });
 
+    /**
+     * Displays image previews in a specified container.
+     * Allows removal of individual images from the preview and the source array.
+     * @param {File[]} files - An array of image files to display.
+     * @param {HTMLElement} previewElement - The HTML element to display previews in.
+     * @param {string} filesArrayName - The string name of the global array holding the files (e.g., 'imageFiles'). Used for removal.
+     */
     function displayImagePreviews(files, previewElement, filesArrayName) {
         if (!previewElement) return;
-        previewElement.innerHTML = '';
+        previewElement.innerHTML = ''; // Clear existing previews
         if (!files || files.length === 0) return;
 
         files.forEach((file, index) => {
-            if (!file.type.match('image.*')) return;
+            if (!file.type.match('image.*')) return; // Ensure it's an image
             const reader = new FileReader();
             reader.onload = function(e) {
                 const previewItem = document.createElement('div');
                 previewItem.className = 'image-preview-item';
+
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.alt = file.name;
+
                 const fileNameDiv = document.createElement('div');
                 fileNameDiv.className = 'file-name';
                 fileNameDiv.textContent = file.name.length > 20 ? file.name.substring(0, 17) + '...' : file.name;
+
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'remove-btn';
                 removeBtn.innerHTML = '&times;';
+                removeBtn.title = `Remove ${file.name}`;
+                /**
+                 * Handles removal of an image from the preview and the corresponding global file array.
+                 * @listens click
+                 */
                 removeBtn.onclick = () => {
+                    // Access the global array by its name
                     if (window[filesArrayName]) {
-                        window[filesArrayName].splice(index, 1);
+                        window[filesArrayName].splice(index, 1); // Remove file from the array
+                        // Re-display previews for the modified array
                         displayImagePreviews(window[filesArrayName], previewElement, filesArrayName);
                     }
                 };
+
                 previewItem.appendChild(img);
                 previewItem.appendChild(fileNameDiv);
                 previewItem.appendChild(removeBtn);
@@ -253,6 +399,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    /**
+     * Converts multiple images to a single PDF document using jsPDF.
+     * @async
+     * @param {File[]} filesToConvert - An array of image files to convert.
+     * @param {string} pageSizeId - The ID of the select element for page size.
+     * @param {string} pageOrientationId - The ID of the select element for page orientation.
+     * @param {string} pageMarginId - The ID of the input element for page margin.
+     * @param {HTMLButtonElement} btnElement - The button element that triggered the conversion, used for UI feedback.
+     * @param {object} [options={}] - Advanced options for PDF generation.
+     * @param {string|null} [options.compressionLevelId=null] - ID of the compression level select element.
+     * @param {string|null} [options.borderStyleId=null] - ID of the border style select element.
+     * @param {string|null} [options.borderColorId=null] - ID of the border color input element.
+     * @returns {Promise<void>} A promise that resolves when the conversion process is complete (success or failure).
+     */
     async function convertMultipleImagesToPdfLogic(filesToConvert, pageSizeId, pageOrientationId, pageMarginId, btnElement, options = {}) {
         if (!filesToConvert || filesToConvert.length === 0) {
             alert('Please upload at least one image.');
@@ -264,47 +424,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const { jsPDF } = window.jspdf;
-            const orientation = document.getElementById(pageOrientationId)?.value || 'portrait';
-            const pageSize = document.getElementById(pageSizeId)?.value || 'a4';
-            const margin = parseInt(document.getElementById(pageMarginId)?.value) || 10;
+            const pdfDocOptions = getPdfOptions(pageSizeId, pageOrientationId, pageMarginId);
+            const doc = new jsPDF({ orientation: pdfDocOptions.orientation, unit: 'mm', format: pdfDocOptions.size });
 
-            const doc = new jsPDF({ orientation, unit: 'mm', format: pageSize });
-
-            const {
-                compressionLevelId = null,
-                borderStyleId = null,
-                borderColorId = null
-            } = options;
+            const { compressionLevelId = null, borderStyleId = null, borderColorId = null } = options;
 
             for (let i = 0; i < filesToConvert.length; i++) {
                 const file = filesToConvert[i];
-                if (i > 0) doc.addPage(pageSize, orientation);
+                if (i > 0) doc.addPage(pdfDocOptions.size, pdfDocOptions.orientation);
 
                 const img = await new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onload = e => {
                         const image = new Image();
                         image.onload = () => resolve(image);
-                        image.onerror = (err) => reject(new Error(`Failed to load image: ${file.name}. Error: ${err}`));
+                        image.onerror = (err) => reject(new Error(`Failed to load image: ${file.name}. Error: ${err.toString()}`));
                         image.src = e.target.result;
                     };
-                    reader.onerror = (err) => reject(new Error(`FileReader error for ${file.name}. Error: ${err}`));
+                    reader.onerror = (err) => reject(new Error(`FileReader error for ${file.name}. Error: ${err.toString()}`));
                     reader.readAsDataURL(file);
                 });
 
                 const imgWidth = img.width;
                 const imgHeight = img.height;
-                const pageWidth = doc.internal.pageSize.getWidth() - (margin * 2);
-                const pageHeight = doc.internal.pageSize.getHeight() - (margin * 2);
+                const pageWidth = doc.internal.pageSize.getWidth() - (pdfDocOptions.margin * 2);
+                const pageHeight = doc.internal.pageSize.getHeight() - (pdfDocOptions.margin * 2);
 
                 let ratio = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
                 let newWidth = imgWidth * ratio;
                 let newHeight = imgHeight * ratio;
-                let x = margin + (pageWidth - newWidth) / 2;
-                let y = margin + (pageHeight - newHeight) / 2;
+                let x = pdfDocOptions.margin + (pageWidth - newWidth) / 2;
+                let y = pdfDocOptions.margin + (pageHeight - newHeight) / 2;
 
-                if (borderStyleId && document.getElementById(borderStyleId) && 
-                    borderColorId && document.getElementById(borderColorId)) {
+                if (borderStyleId && document.getElementById(borderStyleId) && borderColorId && document.getElementById(borderColorId)) {
                     const borderStyle = document.getElementById(borderStyleId).value;
                     const borderColor = document.getElementById(borderColorId).value;
                     if (borderStyle !== 'none') {
@@ -313,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         doc.setLineWidth(borderWidthPx);
                         if (borderStyle === 'dotted') doc.setLineDashPattern([1, 1], 0);
                         else if (borderStyle === 'dashed') doc.setLineDashPattern([3, 1.5], 0);
-                        else doc.setLineDashPattern([], 0);
+                        else doc.setLineDashPattern([], 0); // Solid
                         doc.rect(x - borderWidthPx, y - borderWidthPx, newWidth + (borderWidthPx * 2), newHeight + (borderWidthPx * 2));
                     }
                 }
@@ -342,6 +494,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (convertToPdfBtn) {
+        /**
+         * Handles click event for the "Image to PDF" conversion button.
+         * @listens click on #convert-to-pdf
+         */
         convertToPdfBtn.addEventListener('click', () => convertMultipleImagesToPdfLogic(
             imageFiles, 
             'page-size', 
@@ -368,6 +524,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     if (convertScanToPdfBtn) {
+         /**
+         * Handles click event for the "Scan to PDF" conversion button.
+         * Uses the generic image to PDF logic.
+         * @listens click on #convert-scan-to-pdf
+         */
         convertScanToPdfBtn.addEventListener('click', () => {
             if (!scannedImageFiles || scannedImageFiles.length === 0) {
                 alert("Please upload scanned image(s) first.");
@@ -379,6 +540,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 'scan-page-orientation', 
                 'scan-page-margin', 
                 convertScanToPdfBtn
+                // No advanced options passed for scan to PDF currently
             );
         });
     }
@@ -399,6 +561,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 'pdf-file-info');
 
     if (convertToWordBtn) {
+        /**
+         * Handles click event for the "PDF to Word" conversion button.
+         * This is a simulated conversion.
+         * @listens click on #convert-to-word
+         */
         convertToWordBtn.addEventListener('click', function() {
             if (!pdfFileForWord) {
                 alert('Please upload a PDF file.');
@@ -409,6 +576,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const outputFormat = document.getElementById('word-format')?.value || 'docx';
             const fileName = pdfFileForWord.name.replace(/\.[^/.]+$/, '') + `_converted.${outputFormat}`;
 
+            // Simulate processing delay
             setTimeout(() => {
                 const wordBlob = new Blob([`Simulated ${outputFormat.toUpperCase()} content for ${pdfFileForWord.name}. Full client-side PDF to Word conversion is extremely complex and often requires server-side tools or advanced libraries.`], { type: 'application/octet-stream' });
                 showDownloadSection(fileName, wordBlob);
@@ -418,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- WORD TO PDF (Using Mammoth for text extraction) ---
+    // --- WORD TO PDF ---
     const wordUploadArea = document.getElementById('word-upload-area');
     const wordInput = document.getElementById('word-input');
     const convertWordToPdfBtn = document.getElementById('convert-word-to-pdf');
@@ -434,6 +602,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 'word-file-info');
 
     if (convertWordToPdfBtn) {
+        /**
+         * Handles click event for the "Word to PDF" conversion button.
+         * Converts the Word document (.docx, .doc, .odt) to HTML using Mammoth.js,
+         * then renders this HTML to a PDF using jsPDF's html() method.
+         * @async
+         * @listens click on #convert-word-to-pdf
+         * @throws {Error} If file processing or PDF generation fails.
+         */
         convertWordToPdfBtn.addEventListener('click', async function() {
             if (!wordFileForPdf) {
                 alert('Please upload a Word file.');
@@ -444,40 +620,53 @@ document.addEventListener('DOMContentLoaded', function() {
 
             try {
                 const arrayBuffer = await wordFileForPdf.arrayBuffer();
-                const { value: text } = await mammoth.extractRawText({ arrayBuffer });
+                const result = await mammoth.convertToHtml({ arrayBuffer });
+                const htmlContent = result.value;
+
+                const pdfOptions = getPdfOptions(
+                    'word-page-size','word-page-orientation','word-page-margin', { margin: 15 }
+                );
+
+                const wrappedHtml = `
+                    <style>
+                        body { font-family: 'Poppins', sans-serif; } /* Match base font if possible */
+                        p, li, h1, h2, h3, h4, h5, h6 { margin-bottom: 0.5em; line-height: 1.4; }
+                        ul, ol { padding-left: 20px; margin-left: 0; }
+                        table { border-collapse: collapse; width: 100%; margin-bottom: 1em; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        img { max-width: 100%; height: auto; }
+                    </style>
+                    <div style="margin: ${pdfOptions.margin}mm;">
+                        ${htmlContent}
+                    </div>`;
 
                 const { jsPDF } = window.jspdf;
-                const orientation = document.getElementById('word-page-orientation')?.value || 'portrait';
-                const pageSize = document.getElementById('word-page-size')?.value || 'a4';
-                const doc = new jsPDF({ orientation, unit: 'mm', format: pageSize });
-
-                const margin = 15; 
-                const FONT_SIZE = 11; 
-                const LINE_HEIGHT_FACTOR = 1.5;
-                const MM_PER_POINT = 0.352778; 
-                const lineHeightMm = FONT_SIZE * MM_PER_POINT * LINE_HEIGHT_FACTOR;
-                const usableWidth = doc.internal.pageSize.getWidth() - (2 * margin);
-
-                doc.setFont('helvetica', 'normal');
-                doc.setFontSize(FONT_SIZE);
-                const lines = doc.splitTextToSize(text, usableWidth);
-
-                let y = margin;
-                lines.forEach(line => {
-                    if (y + lineHeightMm > doc.internal.pageSize.getHeight() - margin) {
-                        doc.addPage(pageSize, orientation);
-                        y = margin;
-                    }
-                    doc.text(line, margin, y);
-                    y += lineHeightMm;
+                const doc = new jsPDF({
+                    orientation: pdfOptions.orientation, unit: 'mm', format: pdfOptions.size
                 });
 
-                const pdfName = wordFileForPdf.name.replace(/\.[^/.]+$/, '') + '_converted.pdf';
-                const pdfBlob = doc.output('blob');
-                showDownloadSection(pdfName, pdfBlob);
+                if (typeof doc.html !== 'function') {
+                    alert('jsPDF html method is not available. Please ensure you are using a full version of jsPDF.');
+                    throw new Error('jsPDF html method not found.');
+                }
+
+                await doc.html(wrappedHtml, {
+                    callback: function (docInstance) {
+                        const pdfName = wordFileForPdf.name.replace(/\.[^/.]+$/, '') + '_converted.pdf';
+                        const pdfBlob = docInstance.output('blob');
+                        showDownloadSection(pdfName, pdfBlob);
+                    },
+                    x: 0, y: 0,
+                    autoPaging: 'text',
+                    html2canvas: { scale: 0.26, useCORS: true, logging: false }, // scale of 0.26 for A4 width ~210mm
+                    width: doc.internal.pageSize.getWidth(),
+                    windowWidth: doc.internal.pageSize.getWidth()
+                });
+
             } catch (error) {
                 console.error('Word to PDF Conversion error:', error);
-                alert('An error occurred during Word to PDF conversion. The file might be corrupted or an unsupported format.');
+                alert('An error occurred during Word to PDF conversion: ' + error.message);
             } finally {
                 this.innerHTML = '<i class="fas fa-file-pdf"></i> Convert to PDF';
                 this.disabled = false;
@@ -491,29 +680,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const convertVideoToAudioBtn = document.getElementById('convert-video-to-audio');
 
     setupDragAndDrop(videoUploadArea, videoInput, (files) => {
-        if (files.length > 0) {
-            videoFileForAudio = files[0];
-            showFileInfo('video-file-info', videoFileForAudio.name);
-        } else {
-            videoFileForAudio = null;
-            hideFileInfo('video-file-info');
-        }
+        if (files.length > 0) { videoFileForAudio = files[0]; showFileInfo('video-file-info', videoFileForAudio.name); }
+        else { videoFileForAudio = null; hideFileInfo('video-file-info'); }
     }, 'video-file-info');
     
     const volumeSlider = document.getElementById('volume');
     const volumeValue = document.getElementById('volume-value');
     if (volumeSlider && volumeValue) {
-        volumeSlider.addEventListener('input', function() {
-            volumeValue.textContent = this.value + '%';
-        });
+        volumeSlider.addEventListener('input', function() { volumeValue.textContent = this.value + '%'; });
     }
 
     if (convertVideoToAudioBtn) {
+        /**
+         * Handles click event for the "Video to Audio" extraction button.
+         * This is a simulated conversion.
+         * @listens click on #convert-video-to-audio
+         */
         convertVideoToAudioBtn.addEventListener('click', function() {
-            if (!videoFileForAudio) {
-                alert('Please upload a video file.');
-                return;
-            }
+            if (!videoFileForAudio) { alert('Please upload a video file.'); return; }
             this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Extracting Audio...';
             this.disabled = true;
             const audioFormat = document.getElementById('audio-format')?.value || 'mp3';
@@ -528,30 +712,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- EXCEL TO PDF (Basic Text Dump) ---
+    // --- EXCEL TO PDF ---
     const excelUploadArea = document.getElementById('excel-upload-area');
     const excelInput = document.getElementById('excel-input');
     const convertExcelToPdfBtn = document.getElementById('convert-excel-to-pdf');
 
     setupDragAndDrop(excelUploadArea, excelInput, (files) => {
-        if (files.length > 0) {
-            excelFile = files[0];
-            showFileInfo('excel-file-info', excelFile.name);
-        } else {
-            excelFile = null;
-            hideFileInfo('excel-file-info');
-        }
+        if (files.length > 0) { excelFile = files[0]; showFileInfo('excel-file-info', excelFile.name); }
+        else { excelFile = null; hideFileInfo('excel-file-info'); }
     }, 'excel-file-info');
 
     if (convertExcelToPdfBtn) {
+        /**
+         * Handles click event for the "Excel to PDF" conversion button.
+         * Parses the Excel file and generates a PDF document with tables for each sheet using jsPDF and jsPDF-AutoTable.
+         * @async
+         * @listens click on #convert-excel-to-pdf
+         * @throws {Error} If file processing or PDF generation fails.
+         */
         convertExcelToPdfBtn.addEventListener('click', async function() {
-            if (!excelFile) {
-                alert('Please upload an Excel file.');
-                return;
-            }
+            if (!excelFile) { alert('Please upload an Excel file.'); return; }
             this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing Excel...';
             this.disabled = true;
-
             const outputFileName = excelFile.name.replace(/\.[^/.]+$/, '') + '_converted.pdf';
 
             try {
@@ -560,75 +742,55 @@ document.addEventListener('DOMContentLoaded', function() {
                 const workbook = XLSX.read(data, { type: 'array', cellDates: true });
 
                 const { jsPDF } = window.jspdf;
-                const orientation = document.getElementById('excel-orientation')?.value || 'landscape';
-                const pageSize = document.getElementById('excel-page-size')?.value || 'a4';
-                const includeGridlines = document.getElementById('include-gridlines')?.checked;
+                const pdfDocOptions = getPdfOptions(
+                    'excel-page-size', 'excel-page-orientation', 'excel-page-margin',
+                    { orientation: 'landscape', margin: 10 }
+                );
 
-                const doc = new jsPDF({ orientation, unit: 'mm', format: pageSize });
-                const FONT_SIZE = 8; 
-                const CELL_PADDING = 1; 
-                const MM_PER_POINT = 0.352778;
-                const baseLineHeight = (FONT_SIZE * MM_PER_POINT) * 1.2; 
-                const margin = 10; 
+                const doc = new jsPDF({ orientation: pdfDocOptions.orientation, unit: 'mm', format: pdfDocOptions.size });
 
-                let firstSheetProcessed = true;
-                workbook.SheetNames.forEach(sheetName => {
-                    if (!firstSheetProcessed) {
-                        doc.addPage(pageSize, orientation);
-                    }
-                    firstSheetProcessed = false;
+                if (typeof doc.autoTable !== 'function') {
+                     alert('Error: PDF Table generation library (jsPDF-AutoTable) is missing.');
+                    throw new Error('jsPDF-AutoTable not loaded.');
+                }
 
-                    doc.setFontSize(FONT_SIZE + 2);
-                    doc.text(sheetName, margin, margin);
-                    doc.setFontSize(FONT_SIZE);
+                workbook.SheetNames.forEach((sheetName, index) => {
+                    if (index > 0) doc.addPage(pdfDocOptions.size, pdfDocOptions.orientation);
+
+                    doc.setFontSize(12);
+                    doc.text(sheetName, pdfDocOptions.margin, pdfDocOptions.margin);
 
                     const ws = workbook.Sheets[sheetName];
-                    const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "", raw: false });
+                    const sheetData = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "", rawNumbers: false });
 
-                    if (jsonData.length === 0) return; 
+                    if (sheetData.length === 0) {
+                        doc.setFontSize(10);
+                        doc.text("Sheet is empty.", pdfDocOptions.margin, pdfDocOptions.margin + 10);
+                        return;
+                    }
 
-                    let y = margin + baseLineHeight * 2; 
-                    const tableStartX = margin;
-                    let tableMaxWidth = doc.internal.pageSize.getWidth() - 2 * margin;
-                    
-                    let numCols = 0;
-                    jsonData.forEach(r => numCols = Math.max(numCols, r.length));
-                    const colWidths = Array(numCols).fill(tableMaxWidth / numCols);
-                    
-                    jsonData.forEach((row) => {
-                        let currentX = tableStartX;
-                        let maxRowHeight = baseLineHeight;
+                    const head = [sheetData[0]];
+                    const body = sheetData.slice(1);
+                    const includeGridlines = document.getElementById('include-gridlines')?.checked;
 
-                        row.forEach((cellData, colIndex) => {
-                            if (colIndex < numCols) {
-                                const cellText = String(cellData);
-                                const textLines = doc.splitTextToSize(cellText, colWidths[colIndex] - (2 * CELL_PADDING));
-                                maxRowHeight = Math.max(maxRowHeight, textLines.length * baseLineHeight);
+                    doc.autoTable({
+                        head: head, body: body,
+                        startY: pdfDocOptions.margin + 7,
+                        margin: {
+                            top: pdfDocOptions.margin + 7, left: pdfDocOptions.margin,
+                            right: pdfDocOptions.margin, bottom: pdfDocOptions.margin
+                        },
+                        theme: includeGridlines ? 'grid' : 'striped',
+                        styles: { fontSize: 8, cellPadding: 1, overflow: 'linebreak' },
+                        headStyles: { fillColor: [22, 160, 133], fontSize: 9, fontStyle: 'bold' },
+                        alternateRowStyles: { fillColor: [240, 240, 240] },
+                        tableWidth: 'auto', showHead: 'everyPage', cellWidth: 'wrap',
+                        didDrawPage: function (data) {
+                            if (data.pageNumber > 1 || (index > 0 && data.pageNumber === 1 && doc.internal.getNumberOfPages() > index + 1) ) {
+                                doc.setFontSize(12);
+                                doc.text(sheetName + (data.pageNumber > 1 ? " (cont.)" : ""), pdfDocOptions.margin, pdfDocOptions.margin);
                             }
-                        });
-                        
-                        if (y + maxRowHeight > doc.internal.pageSize.getHeight() - margin) {
-                            doc.addPage(pageSize, orientation);
-                            y = margin;
                         }
-
-                        row.forEach((cellData, colIndex) => {
-                            if (colIndex < numCols) {
-                                const cellText = String(cellData);
-                                const textLines = doc.splitTextToSize(cellText, colWidths[colIndex] - (2 * CELL_PADDING));
-
-                                if (includeGridlines) {
-                                    doc.rect(currentX, y, colWidths[colIndex], maxRowHeight);
-                                }
-                                let textY = y + baseLineHeight - ( MM_PER_POINT * FONT_SIZE * 0.2 );
-                                textLines.forEach(line => {
-                                    doc.text(line, currentX + CELL_PADDING, textY);
-                                    textY += baseLineHeight;
-                                });
-                                currentX += colWidths[colIndex];
-                            }
-                        });
-                        y += maxRowHeight;
                     });
                 });
 
@@ -637,7 +799,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             } catch (error) {
                 console.error('Excel to PDF Conversion error:', error);
-                alert('An error occurred during Excel to PDF conversion. The file might be corrupted or use unsupported features. Check console for details.');
+                alert('An error occurred during Excel to PDF conversion: ' + error.message);
             } finally {
                 this.innerHTML = '<i class="fas fa-file-pdf"></i> Convert to PDF';
                 this.disabled = false;
@@ -651,21 +813,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const convertPptToPdfBtn = document.getElementById('convert-ppt-to-pdf');
 
     setupDragAndDrop(pptUploadArea, pptInput, (files) => {
-        if (files.length > 0) {
-            pptFile = files[0];
-            showFileInfo('ppt-file-info', pptFile.name);
-        } else {
-            pptFile = null;
-            hideFileInfo('ppt-file-info');
-        }
+        if (files.length > 0) { pptFile = files[0]; showFileInfo('ppt-file-info', pptFile.name); }
+        else { pptFile = null; hideFileInfo('ppt-file-info'); }
     }, 'ppt-file-info');
 
     if (convertPptToPdfBtn) {
+        /**
+         * Handles click event for the "PPT to PDF" conversion button.
+         * This is a placeholder for a complex feature.
+         * @listens click on #convert-ppt-to-pdf
+         */
         convertPptToPdfBtn.addEventListener('click', function() {
-            if (!pptFile) {
-                alert('Please upload a PowerPoint file.');
-                return;
-            }
+            if (!pptFile) { alert('Please upload a PowerPoint file.'); return; }
             this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing PPT...';
             this.disabled = true;
             const fileName = pptFile.name.replace(/\.[^/.]+$/, '') + '_converted.pdf';
@@ -685,33 +844,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const applyPdfEditsBtn = document.getElementById('apply-pdf-edits');
 
     setupDragAndDrop(editPdfUploadArea, editPdfInput, (files) => {
-        if (files.length > 0) {
-            pdfToEditFile = files[0];
-            showFileInfo('edit-pdf-file-info', pdfToEditFile.name);
-        } else {
-            pdfToEditFile = null;
-            hideFileInfo('edit-pdf-file-info');
-        }
+        if (files.length > 0) { pdfToEditFile = files[0]; showFileInfo('edit-pdf-file-info', pdfToEditFile.name); }
+        else { pdfToEditFile = null; hideFileInfo('edit-pdf-file-info'); }
     }, 'edit-pdf-file-info');
 
     if (applyPdfEditsBtn) {
+        /**
+         * Handles click event for the "Apply PDF Edits" button.
+         * This is a placeholder for a complex PDF editing feature.
+         * @async
+         * @listens click on #apply-pdf-edits
+         */
         applyPdfEditsBtn.addEventListener('click', async function() {
-            if (!pdfToEditFile) {
-                alert('Please upload a PDF file to edit.');
-                return;
-            }
+            if (!pdfToEditFile) { alert('Please upload a PDF file to edit.'); return; }
             this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Applying Edits...';
             this.disabled = true;
             const fileName = 'edited_' + pdfToEditFile.name;
             
             try {
+                // Simulate processing
                 setTimeout(() => {
                     const pdfBlob = new Blob([`Simulated edited PDF for ${pdfToEditFile.name}. Actual PDF editing requires a library like PDF-lib.js and UI for editing tools.`], { type: 'application/pdf' });
                     showDownloadSection(fileName, pdfBlob);
                 }, 2000);
             } catch (err) {
                 console.error("PDF Editing Error:", err);
-                alert("Could not process PDF for editing. Check if PDF-lib.js is correctly loaded and the PDF is not corrupted.");
+                alert("Could not process PDF for editing. " + err.message);
             } finally {
                 this.innerHTML = '<i class="fas fa-save"></i> Apply Edits & Save PDF';
                 this.disabled = false;
