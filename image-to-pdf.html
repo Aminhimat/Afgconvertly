@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image to PDF - Convertlly</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Image to PDF</h1>
+      <a href="index.html">← Back to Home</a>
+    </div>
+  </header>
+  <main class="container">
+    <div class="upload-area" id="image-upload-area">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <p>Drag & drop images here or click to browse</p>
+      <input type="file" id="image-input" accept="image/*" multiple>
+    </div>
+    <div class="preview-container" id="image-preview"></div>
+    <div class="options-panel">
+      <h3><i class="fas fa-cog"></i> PDF Options</h3>
+      <div class="option-group">
+        <label>Page Size:</label>
+        <select id="page-size">
+          <option value="a4">A4</option>
+          <option value="letter">Letter</option>
+          <option value="legal">Legal</option>
+        </select>
+      </div>
+      <div class="option-group">
+        <label>Orientation:</label>
+        <select id="page-orientation">
+          <option value="portrait">Portrait</option>
+          <option value="landscape">Landscape</option>
+        </select>
+      </div>
+    </div>
+    <button id="convert-to-pdf" class="convert-btn">
+      <i class="fas fa-file-pdf"></i> Convert to PDF
+    </button>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
