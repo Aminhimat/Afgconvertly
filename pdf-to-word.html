@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF to Word - Convertlly</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>PDF to Word</h1>
+      <a href="index.html">← Back to Home</a>
+    </div>
+  </header>
+  <main class="container">
+    <div class="upload-area" id="pdf-upload-area">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <p>Drag & drop PDF here or click to browse</p>
+      <input type="file" id="pdf-input" accept=".pdf">
+    </div>
+    <div class="options-panel">
+      <h3>Options</h3>
+      <div class="option-group">
+        <label>Output Format:</label>
+        <select id="word-format">
+          <option value="docx">DOCX</option>
+          <option value="doc">DOC</option>
+        </select>
+      </div>
+    </div>
+    <button id="convert-to-word" class="convert-btn">
+      <i class="fas fa-file-word"></i> Convert to Word
+    </button>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
